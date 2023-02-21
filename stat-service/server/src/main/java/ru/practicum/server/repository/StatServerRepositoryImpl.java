@@ -55,13 +55,14 @@ public class StatServerRepositoryImpl implements StatServerRepository {
         String sql = "select r.app, r.uri, count(*) hits from (select h.ip, h.app, h.uri from endpoint_hits h" +
                 " where h.uri in (:uris) and" +
                 " cast(h.timestamp as date) between cast((:start) as date) and cast((:end) as date)) as r" +
-                " group by r.app, r.uri";
+                " group by r.app, r.uri order by hits DESC";
 
         if (unique) {
-            sql = "select r.app, r.uri, count(*) hits from (select distinct h.ip, h.app, h.uri from" +
+            sql = "select r.app, r.uri, count(*) hits from (select h.ip, h.app, h.uri from" +
                     " endpoint_hits h where h.uri in (:uris) and" +
-                    " cast(h.timestamp as date) between cast((:start) as date) and cast((:end) as date)) as r" +
-                    " group by r.app, r.uri";
+                    " cast(h.timestamp as date) between cast((:start) as date) and cast((:end) as date)" +
+                    " group by h.ip, h.app, h.uri) as r" +
+                    " group by r.app, r.uri order by hits DESC";
         }
 
         return namedParameterJdbcTemplate.query(sql, namedParameters, (rs, rowNum) -> makeStatResponseDto(rs));
