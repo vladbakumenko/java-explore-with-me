@@ -6,12 +6,12 @@ import ru.practicum.dto.EndpointHitRequestDto;
 import ru.practicum.dto.StatResponseDto;
 import ru.practicum.server.mapper.StatServerMapper;
 import ru.practicum.server.model.EndpointHit;
+import ru.practicum.server.model.StatHits;
 import ru.practicum.server.repository.StatServerRepository;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -21,24 +21,19 @@ public class StatServiceImpl implements StatService {
     @Override
     public void addHit(EndpointHitRequestDto requestDto) {
         EndpointHit endpointHit = StatServerMapper.toEndpointHit(requestDto);
-        endpointHit.setTimestamp(toLocalDateTime(requestDto.getTimestamp()));
-
         statServerRepository.save(endpointHit);
     }
 
     @Override
-    public List<StatResponseDto> getStats(String start, String end, List<String> uris, boolean unique) {
-        LocalDateTime startDateTime = toLocalDateTime(start);
-        LocalDateTime endDateTime = toLocalDateTime(end);
+    public List<StatResponseDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
+        List<StatHits> stats;
 
         if (uris.isEmpty()) {
-            return Collections.emptyList();
+            stats = statServerRepository.findAllStats(start, end, unique);
+        } else {
+            stats = statServerRepository.findAllStatsWithUris(uris, start, end, unique);
         }
 
-        return statServerRepository.findAllStats(uris, startDateTime, endDateTime, unique);
-    }
-
-    private static LocalDateTime toLocalDateTime(String dateTime) {
-        return LocalDateTime.parse(dateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        return stats.stream().map(StatServerMapper::toStatResponseDto).collect(Collectors.toList());
     }
 }

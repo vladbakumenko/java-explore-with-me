@@ -1,10 +1,12 @@
 package ru.practicum.server.mapper;
 
-import org.springframework.stereotype.Component;
+import lombok.experimental.UtilityClass;
 import ru.practicum.dto.EndpointHitRequestDto;
+import ru.practicum.dto.StatResponseDto;
 import ru.practicum.server.model.EndpointHit;
+import ru.practicum.server.model.StatHits;
 
-@Component
+@UtilityClass
 public class StatServerMapper {
 
     public static EndpointHit toEndpointHit(EndpointHitRequestDto requestDto) {
@@ -12,6 +14,11 @@ public class StatServerMapper {
                 .app(requestDto.getApp())
                 .uri(requestDto.getUri())
                 .ip(requestDto.getIp())
+                .timestamp(requestDto.getTimestamp())
                 .build();
+    }
+
+    public static StatResponseDto toStatResponseDto(StatHits statHits) {
+        return new StatResponseDto(statHits.getApp(), statHits.getUri(), statHits.getHits());
     }
 }
