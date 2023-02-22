@@ -1,5 +1,6 @@
 package ru.practicum.server.repository;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -17,6 +18,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Component
 public class StatServerRepositoryImpl implements StatServerRepository {
@@ -32,18 +34,39 @@ public class StatServerRepositoryImpl implements StatServerRepository {
 
     @Override
     public void save(EndpointHit endpointHit) {
-        String sql = "INSERT INTO endpoint_hits(app, uri, ip, timestamp) " +
-                "VALUES (?, ?, ?, ?)";
+        String sqlForGetIdApps = "SELECT apps.id FROM apps WHERE name = ?";
+        long appId;
 
-        KeyHolder keyHolder = new GeneratedKeyHolder();
+        try {
+            appId = jdbcTemplate.queryForObject(sqlForGetIdApps, Long.class, endpointHit.getApp());
+        } catch (EmptyResultDataAccessException e) {
+            appId = 0;
+        }
+
+        if (appId == 0) {
+            String sqlForAddApp = "INSERT INTO apps(name) VALUES (?)";
+            KeyHolder keyHolder1 = new GeneratedKeyHolder();
+            jdbcTemplate.update(connection -> {
+                PreparedStatement stmt = connection.prepareStatement(sqlForAddApp, new String[]{"id"});
+                stmt.setString(1, endpointHit.getApp());
+                return stmt;
+            }, keyHolder1);
+
+            appId = Objects.requireNonNull(keyHolder1.getKey()).longValue();
+        }
+
+        String sql = "INSERT INTO endpoint_hits(app_id, uri, ip, timestamp) " +
+                "VALUES (?, ?, ?, ?)";
+        KeyHolder keyHolder2 = new GeneratedKeyHolder();
+        long finalAppId = appId;
         jdbcTemplate.update(connection -> {
             PreparedStatement stmt = connection.prepareStatement(sql, new String[]{"id"});
-            stmt.setString(1, endpointHit.getApp());
+            stmt.setLong(1, finalAppId);
             stmt.setString(2, endpointHit.getUri());
             stmt.setString(3, endpointHit.getIp());
             stmt.setTimestamp(4, Timestamp.valueOf(endpointHit.getTimestamp()));
             return stmt;
-        }, keyHolder);
+        }, keyHolder2);
     }
 
     @Override
@@ -55,16 +78,16 @@ public class StatServerRepositoryImpl implements StatServerRepository {
                 "end", end)
         );
 
-        String sql = "select r.app, r.uri, count(*) hits from (select h.ip, h.app, h.uri from endpoint_hits h" +
-                " where h.uri in (:uris) and" +
+        String sql = "select r.app, r.uri, count(*) hits from (select h.ip, a.name as app, h.uri from endpoint_hits h" +
+                " join apps a on h.app_id = a.id where h.uri in (:uris) and" +
                 " cast(h.timestamp as date) between cast((:start) as date) and cast((:end) as date)) as r" +
                 " group by r.app, r.uri order by hits DESC";
 
         if (unique) {
-            sql = "select r.app, r.uri, count(*) hits from (select h.ip, h.app, h.uri from" +
-                    " endpoint_hits h where h.uri in (:uris) and" +
+            sql = "select r.app, r.uri, count(*) hits from (select h.ip, a.name as app, h.uri from" +
+                    " endpoint_hits h join apps a on h.app_id = a.id where h.uri in (:uris) and" +
                     " cast(h.timestamp as date) between cast((:start) as date) and cast((:end) as date)" +
-                    " group by h.ip, h.app, h.uri) as r" +
+                    " group by h.ip, a.name, h.uri) as r" +
                     " group by r.app, r.uri order by hits DESC";
         }
 
@@ -78,14 +101,16 @@ public class StatServerRepositoryImpl implements StatServerRepository {
                 "end", end)
         );
 
-        String sql = "select r.app, r.uri, count(*) hits from (select h.ip, h.app, h.uri from endpoint_hits h" +
+        String sql = "select r.app, r.uri, count(*) hits from (select h.ip, a.name as app, h.uri from endpoint_hits h" +
+                " join apps a on h.app_id = a.id " +
                 " where cast(h.timestamp as date) between cast((:start) as date) and cast((:end) as date)) as r" +
                 " group by r.app, r.uri order by hits DESC";
 
         if (unique) {
-            sql = "select r.app, r.uri, count(*) hits from (select h.ip, h.app, h.uri from endpoint_hits h" +
+            sql = "select r.app, r.uri, count(*) hits from (select h.ip, a.name as app, h.uri from endpoint_hits h" +
+                    " join apps a on h.app_id = a.id" +
                     " where cast(h.timestamp as date) between cast((:start) as date) and cast((:end) as date)" +
-                    " group by h.ip, h.app, h.uri) as r" +
+                    " group by h.ip, a.name, h.uri) as r" +
                     " group by r.app, r.uri order by hits DESC";
         }
 
