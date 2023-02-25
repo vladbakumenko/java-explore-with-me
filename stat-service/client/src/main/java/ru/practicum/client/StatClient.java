@@ -5,7 +5,6 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
@@ -32,14 +31,11 @@ public class StatClient {
         Map<String, Object> params = Map.of(
                 "start", start,
                 "end", end,
-                "uris", uris,
+                "uris", String.join(",", uris),
                 "unique", unique
         );
 
-        ResponseEntity<List<StatResponseDto>> exchange = restTemplate.exchange("/stats?start={start}&end={end}&uris={uris}&unique={unique}",
-                HttpMethod.GET, null, new ParameterizedTypeReference<List<StatResponseDto>>() {
-                }, params);
-
-        return exchange.getBody();
+        return restTemplate.exchange("/stats?start={start}&end={end}&uris={uris}&unique={unique}", HttpMethod.GET,
+                null, new ParameterizedTypeReference<List<StatResponseDto>>() {}, params).getBody();
     }
 }
