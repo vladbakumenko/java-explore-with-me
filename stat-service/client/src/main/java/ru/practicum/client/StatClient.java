@@ -6,6 +6,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.dto.EndpointHitRequestDto;
@@ -14,6 +15,7 @@ import ru.practicum.dto.StatResponseDto;
 import java.util.List;
 import java.util.Map;
 
+@Component
 public class StatClient {
     private final RestTemplate restTemplate;
 
@@ -36,6 +38,7 @@ public class StatClient {
         );
 
         return restTemplate.exchange("/stats?start={start}&end={end}&uris={uris}&unique={unique}", HttpMethod.GET,
-                null, new ParameterizedTypeReference<List<StatResponseDto>>() {}, params).getBody();
+                null, new ParameterizedTypeReference<List<StatResponseDto>>() {
+                }, params).getBody();
     }
 }
