@@ -111,8 +111,8 @@ public class AdminServiceImpl implements AdminService {
             throwIfEventDateIsNotLaterOneHourAfterNow(eventDate);
         }
 
-        Event event = eventRepository.findById(eventId).
-                orElseThrow(() -> new NotFoundException(String.format("Event with id=%d was not found", eventId)));
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException(String.format("Event with id=%d was not found", eventId)));
 
         StateAction state = null;
         String stateAction = updateEventRequestDto.getStateAction();
