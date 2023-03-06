@@ -214,7 +214,7 @@ public class AdminServiceImpl implements AdminService {
 
         return CompilationMapper.toCompilationDto(compilation);
     }
-    
+
     private void throwIfEventDateIsNotLaterOneHourAfterNow(LocalDateTime eventDate) {
         LocalDateTime timestamp = LocalDateTime.now().plusHours(1);
         if (eventDate.isBefore(timestamp)) {
