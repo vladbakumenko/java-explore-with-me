@@ -9,7 +9,7 @@ import ru.practicum.client.StatClient;
 @Configuration
 public class EwmServiceConfig {
 
-    @Value("${stat-server.url}")
+    @Value("${stats-server.url}")
     private String serverUrl;
 
     @Bean
