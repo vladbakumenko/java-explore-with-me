@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import ru.practicum.mainservice.model.Event;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -18,5 +17,5 @@ public interface EventRepository extends JpaRepository<Event, Long>, QuerydslPre
 
     Optional<Event> findByIdAndInitiatorId(long eventId, long userId);
 
-    List<Event> findAllByIdIn(Set<Long> ids);
+    Set<Event> findAllByIdIn(Set<Long> ids);
 }

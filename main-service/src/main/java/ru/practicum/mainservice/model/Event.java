@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
-@ToString
 @Builder
 @Entity
 @NoArgsConstructor
@@ -26,9 +25,6 @@ public class Event {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category")
     private Category category;
-
-    @Column(name = "confirmed_requests")
-    private int confirmedRequests;
 
     @CreatedDate
     @Column(name = "created_on")
@@ -62,6 +58,4 @@ public class Event {
     private EventState state;
 
     private String title;
-
-    private long views;
 }

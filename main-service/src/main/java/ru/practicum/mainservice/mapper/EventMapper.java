@@ -1,5 +1,6 @@
 package ru.practicum.mainservice.mapper;
 
+import lombok.experimental.UtilityClass;
 import ru.practicum.mainservice.dto.event.EventCreationDto;
 import ru.practicum.mainservice.dto.event.EventFullDto;
 import ru.practicum.mainservice.dto.event.EventShortDto;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@UtilityClass
 public class EventMapper {
 
     public static Event toEvent(EventCreationDto eventCreationDto) {
@@ -24,8 +26,7 @@ public class EventMapper {
                 .lat(eventCreationDto.getLocation().getLat())
                 .paid(eventCreationDto.isPaid())
                 .participantLimit(eventCreationDto.getParticipantLimit())
-                .requestModeration(eventCreationDto.getRequestModeration() == null
-                        ? true : eventCreationDto.getRequestModeration())
+                .requestModeration(eventCreationDto.isRequestModeration())
                 .title(eventCreationDto.getTitle())
                 .build();
     }
@@ -35,7 +36,6 @@ public class EventMapper {
                 .id(event.getId())
                 .annotation(event.getAnnotation())
                 .category(CategoryMapper.toCategoryDto(event.getCategory()))
-                .confirmedRequests(event.getConfirmedRequests())
                 .createdOn(event.getCreatedOn())
                 .description(event.getDescription())
                 .eventDate(event.getEventDate())
@@ -50,7 +50,6 @@ public class EventMapper {
                 .requestModeration(event.isRequestModeration())
                 .state(event.getState())
                 .title(event.getTitle())
-                .views(event.getViews())
                 .build();
     }
 
@@ -59,27 +58,27 @@ public class EventMapper {
                 .id(event.getId())
                 .annotation(event.getAnnotation())
                 .category(CategoryMapper.toCategoryDto(event.getCategory()))
-                .confirmedRequests(event.getConfirmedRequests())
                 .eventDate(event.getEventDate())
                 .initiator(UserMapper.toUserShortDto(event.getInitiator()))
                 .paid(event.isPaid())
                 .title(event.getTitle())
-                .views(event.getViews())
                 .build();
     }
 
     public static Event fromUpdateDtoToEvent(UpdateEventRequestDto updateDto, Event event,
                                              Category category, LocalDateTime eventDate, StateAction stateAction) {
-        event.setAnnotation(updateDto.getAnnotation() == null ? event.getAnnotation() : updateDto.getAnnotation());
+        event.setAnnotation((updateDto.getAnnotation() == null || updateDto.getAnnotation().isBlank())
+                ? event.getAnnotation() : updateDto.getAnnotation());
         event.setCategory(category == null ? event.getCategory() : category);
-        event.setDescription(updateDto.getDescription() == null ? event.getDescription() : updateDto.getDescription());
+        event.setDescription((updateDto.getDescription() == null || updateDto.getDescription().isBlank())
+                ? event.getDescription() : updateDto.getDescription());
         event.setEventDate(eventDate == null ? event.getEventDate() : eventDate);
         event.setLat(updateDto.getLocation() == null ? event.getLat() : updateDto.getLocation().getLat());
         event.setLon(updateDto.getLocation() == null ? event.getLon() : updateDto.getLocation().getLon());
         event.setPaid(updateDto.getPaid() == null ? event.isPaid() : updateDto.getPaid());
         event.setParticipantLimit(updateDto.getParticipantLimit() == null ? event.getParticipantLimit() : updateDto.getParticipantLimit());
         event.setRequestModeration(updateDto.getRequestModeration() == null ? event.isRequestModeration() : updateDto.getRequestModeration());
-        event.setTitle(updateDto.getTitle() == null ? event.getTitle() : updateDto.getTitle());
+        event.setTitle((updateDto.getTitle() == null || updateDto.getTitle().isBlank()) ? event.getTitle() : updateDto.getTitle());
 
         if (stateAction != null) {
             if (stateAction.equals(StateAction.SEND_TO_REVIEW)) {

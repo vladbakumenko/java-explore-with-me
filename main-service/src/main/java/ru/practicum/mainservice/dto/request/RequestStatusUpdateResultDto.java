@@ -9,7 +9,6 @@ import java.util.List;
 @Data
 @Builder
 public class RequestStatusUpdateResultDto {
-
     @NotNull
     private List<RequestDto> confirmedRequests;
     @NotNull

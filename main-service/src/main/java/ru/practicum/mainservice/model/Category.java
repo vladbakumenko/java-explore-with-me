@@ -6,7 +6,6 @@ import javax.persistence.*;
 
 @Getter
 @Setter
-@ToString
 @Builder
 @Entity
 @NoArgsConstructor
@@ -16,6 +15,5 @@ public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
     private String name;
 }

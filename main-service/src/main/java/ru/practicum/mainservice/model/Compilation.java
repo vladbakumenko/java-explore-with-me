@@ -3,10 +3,9 @@ package ru.practicum.mainservice.model;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-@ToString
 @Setter
 @Getter
 @NoArgsConstructor
@@ -25,7 +24,7 @@ public class Compilation {
             joinColumns = @JoinColumn(name = "compilation_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "event_id", referencedColumnName = "id")
     )
-    private List<Event> events = new ArrayList<>();
+    private Set<Event> events = new HashSet<>();
 
     private String title;
 
