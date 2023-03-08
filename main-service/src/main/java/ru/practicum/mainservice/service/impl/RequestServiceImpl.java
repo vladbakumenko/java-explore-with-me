@@ -18,7 +18,6 @@ import ru.practicum.mainservice.valid.Validator;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Validated
@@ -41,7 +40,8 @@ public class RequestServiceImpl implements RequestService {
         if (!event.getState().equals(EventState.PUBLISHED)) {
             throw new ConflictException("Сan't participate in an unpublished event");
         }
-        if (event.getParticipantLimit() == getCountOfConfirmedRequestsByEventId(eventId)) {
+        if (event.getParticipantLimit() != 0 &&
+                event.getParticipantLimit() == getCountOfConfirmedRequestsByEventId(eventId)) {
             throw new ConflictException("Participation limit expired");
         }
 
@@ -70,20 +70,12 @@ public class RequestServiceImpl implements RequestService {
 
         List<Request> requests = requestRepository.findAllByEventId(eventId);
 
-        if (requests == null) {
-            return Collections.emptyList();
-        }
-
         return RequestMapper.toListOfRequestDto(requests);
     }
 
     @Override
     public List<RequestDto> getUserRequests(long userId) {
         List<Request> requests = requestRepository.findAllByRequesterId(userId);
-
-        if (requests == null) {
-            return Collections.emptyList();
-        }
 
         return RequestMapper.toListOfRequestDto(requests);
     }
@@ -93,6 +85,11 @@ public class RequestServiceImpl implements RequestService {
     public RequestDto cancelRequest(long userId, long requestId) {
         Request request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException(String.format("Request with id=%d was not found", requestId)));
+
+        if (request.getRequester().getId() != requestId) {
+            throw new ConflictException(String.format("User with id: %d is not the creator" +
+                    " of the event and cannot cancel the request", userId));
+        }
 
         request.setStatus(RequestStatus.CANCELED);
 

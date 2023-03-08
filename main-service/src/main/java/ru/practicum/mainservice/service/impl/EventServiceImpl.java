@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -296,29 +295,10 @@ public class EventServiceImpl implements EventService {
             ev.setViews(hits.getOrDefault(ev.getId(), 0L));
         }
 
-        List<Request> requests = requestRepository.findAllByEventIdInAndStatusEquals(ids, RequestStatus.CONFIRMED);
-        Map<Long, Long> confirmedRequests = requests.stream().map(r -> r.getEvent().getId())
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        Map<Long, Integer> confirmedRequests = requestRepository.findAllConfirmedRequestsByEventIds(ids, RequestStatus.CONFIRMED);
 
         for (Event ev : events) {
-            ev.setConfirmedRequest(confirmedRequests.getOrDefault(ev.getId(), 0L));
+            ev.setConfirmedRequest(confirmedRequests.getOrDefault(ev.getId(), 0));
         }
     }
-
-//    private void addViewsAndConfirmedRequestsForFullDtoEvents(List<EventFullDto> fullDtoEvents) {
-//        List<Long> ids = fullDtoEvents.stream().map(EventFullDto::getId).collect(Collectors.toList());
-//        Map<Long, Long> hits = getHits(ids);
-//
-//        for (EventFullDto dto : fullDtoEvents) {
-//            dto.setViews(hits.getOrDefault(dto.getId(), 0L));
-//        }
-//
-//        List<Request> requests = requestRepository.findAllByEventIdInAndStatusEquals(ids, RequestStatus.CONFIRMED);
-//        Map<Long, Long> confirmedRequests = requests.stream().map(r -> r.getEvent().getId())
-//                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-//
-//        for (EventFullDto dto : fullDtoEvents) {
-//            dto.setConfirmedRequests(confirmedRequests.getOrDefault(dto.getId(), 0L));
-//        }
-//    }
 }

@@ -60,7 +60,7 @@ public class Event {
     private String title;
 
     @Transient
-    private long confirmedRequest;
+    private int confirmedRequest;
 
     @Transient
     private long views;
@@ -73,7 +73,7 @@ public class Event {
         return views;
     }
 
-    public void setConfirmedRequest(long confirmedRequest) {
+    public void setConfirmedRequest(int confirmedRequest) {
         this.confirmedRequest = confirmedRequest;
     }
 
