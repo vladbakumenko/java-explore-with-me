@@ -86,8 +86,8 @@ public class RequestServiceImpl implements RequestService {
         Request request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException(String.format("Request with id=%d was not found", requestId)));
 
-        if (request.getRequester().getId() != requestId) {
-            throw new ConflictException(String.format("User with id: %d is not the creator" +
+        if (request.getRequester().getId() != userId) {
+            throw new ConflictException(String.format("User with id: %d is not the requester" +
                     " of the event and cannot cancel the request", userId));
         }
 
