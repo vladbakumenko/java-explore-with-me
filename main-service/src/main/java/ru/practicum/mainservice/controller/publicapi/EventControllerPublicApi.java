@@ -29,7 +29,7 @@ public class EventControllerPublicApi {
     private final StatClient statClient;
 
     @GetMapping("/events")
-    synchronized public List<EventShortDto> getEventsPublicApi(@RequestParam(defaultValue = "") String text,
+    public synchronized List<EventShortDto> getEventsPublicApi(@RequestParam(defaultValue = "") String text,
                                                                @RequestParam(defaultValue = "") List<Integer> categories,
                                                                @RequestParam(required = false) Boolean paid,
                                                                @RequestParam(required = false) LocalDateTime rangeStart,
@@ -46,7 +46,7 @@ public class EventControllerPublicApi {
     }
 
     @GetMapping("/events/{eventId}")
-    synchronized public EventFullDto getEventById(@PathVariable @Positive long eventId,
+    public synchronized EventFullDto getEventById(@PathVariable @Positive long eventId,
                                                   HttpServletRequest request) {
         sendRequestToStatService(request);
 
