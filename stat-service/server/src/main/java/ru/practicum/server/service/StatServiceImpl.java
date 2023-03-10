@@ -28,7 +28,7 @@ public class StatServiceImpl implements StatService {
     public List<StatResponseDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
         List<StatHits> stats;
 
-        if (uris.isEmpty()) {
+        if (uris == null || uris.isEmpty()) {
             stats = statServerRepository.findAllStats(start, end, unique);
         } else {
             stats = statServerRepository.findAllStatsWithUris(uris, start, end, unique);
