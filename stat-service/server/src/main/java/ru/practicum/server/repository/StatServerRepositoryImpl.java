@@ -34,13 +34,13 @@ public class StatServerRepositoryImpl implements StatServerRepository {
 
     @Override
     public void save(EndpointHit endpointHit) {
-        String sqlForGetIdApps = "SELECT apps.id FROM apps WHERE name = ?";
-        long appId;
+        String sqlForGetIdApps = "SELECT apps.id FROM apps WHERE apps.name = ?";
+        Long appId;
 
         try {
             appId = jdbcTemplate.queryForObject(sqlForGetIdApps, Long.class, endpointHit.getApp());
         } catch (EmptyResultDataAccessException e) {
-            appId = 0;
+            appId = 0L;
         }
 
         if (appId == 0) {
