@@ -37,18 +37,17 @@ public class StatsStorage {
         if (hits.isEmpty()) {
             stats = statClient.getStats(DateTimeMapper.fromLocalDateTimeToString(LocalDateTime.now().minusYears(10)),
                     DateTimeMapper.fromLocalDateTimeToString(LocalDateTime.now().plusYears(10)), uris, false);
-            log.info("Cash of stats is loaded");
         } else {
             LocalDateTime timestamp = LocalDateTime.now().minusSeconds(30);
 
             stats = statClient.getStats(DateTimeMapper.fromLocalDateTimeToString(timestamp),
                     DateTimeMapper.fromLocalDateTimeToString(LocalDateTime.now().plusYears(10)), uris, false);
-            log.info("Cash of stats is updated");
         }
 
         for (StatResponseDto stat : stats) {
             Long id = Long.valueOf(stat.getUri().substring(8));
             hits.put(id, stat.getHits());
         }
+        log.info("Cash of stats is updated");
     }
 }
